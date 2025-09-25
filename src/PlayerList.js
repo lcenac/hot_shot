@@ -4,7 +4,7 @@ import "./PlayerList.css";
 
 export default function PlayerList() {
   const players = [
-    { id: 237, first_name: "LeBron", last_name: "James", league: "NBA", avg_points:"25.3", avg_reb:"6.2",avg_ass:"3.2", fg:"%52" },
+    { id: 237, first_name: "LeBron", last_name: "James", league: "NBA", avg_points:"25.3", avg_reb:"6.2",avg_ass:"3.2", fg:"54" },
     { id: 115, first_name: "Stephen", last_name: "Curry", league: "NBA" },
     { id: 192, first_name: "A’ja", last_name: "Wilson", league: "WNBA" },
     { id: 301, first_name: "Luka", last_name: "Doncic", league: "NBA" },
@@ -59,6 +59,10 @@ export default function PlayerList() {
                   state={{
                     name: `${p.first_name} ${p.last_name}`,
                     league: p.league,
+                    avg_points: p.avg_points,
+                    avg_reb: p.avg_reb,
+                     avg_ass: p.avg_ass,
+                      fg: p.fg,
                   }}
                   className="btn btn-primary mt-auto"
                 >
