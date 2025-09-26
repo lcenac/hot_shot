@@ -46,5 +46,12 @@ export default function PlayerDetail() {
         </div>
       </div>
     </div>
+
+
+
+
+
+
+
   );
 }
