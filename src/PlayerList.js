@@ -94,36 +94,25 @@ export default function PlayerList() {
       try {
         const response = await fetch(
           "http://rest.nbaapi.com/api/PlayerDataTotals/season/2025",
-          {
-            headers: {
-              accept: "application/json",
-            },
-          }
+          { headers: { accept: "application/json" } }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch players");
-        }
+        if (!response.ok) throw new Error("Failed to fetch players");
 
         const data = await response.json();
-        console.log(data); // optional: check the API response in console
-        console.log("Full API response:", data);
-console.log("First element:", Array.isArray(data) ? data[0] : data.players[0]);
 
-        // Map API data to the structure we need
-  const playerList = data.map((p) => ({
-  id: p.id,
-  name: p.playerName,
-  team: p.team,
-  avg_points:
-    p.games && p.points ? (Number(p.points) / Number(p.games)).toFixed(1) : "N/A",
-  avg_reb:
-    p.games && p.totalRb ? (Number(p.totalRb) / Number(p.games)).toFixed(1) : "N/A",
-  avg_ass:
-    p.games && p.assists ? (Number(p.assists) / Number(p.games)).toFixed(1) : "N/A",
-  fg: p.fieldPercent ? (Number(p.fieldPercent) * 100).toFixed(1) + "%" : "N/A",
-}));
-
+        const playerList = data.map((p) => ({
+          id: p.id,
+          name: p.playerName,
+          team: p.team,
+          avg_points:
+            p.games && p.points ? (Number(p.points) / Number(p.games)).toFixed(1) : "N/A",
+          avg_reb:
+            p.games && p.totalRb ? (Number(p.totalRb) / Number(p.games)).toFixed(1) : "N/A",
+          avg_ass:
+            p.games && p.assists ? (Number(p.assists) / Number(p.games)).toFixed(1) : "N/A",
+          fg: p.fieldPercent ? (Number(p.fieldPercent) * 100).toFixed(1) + "%" : "N/A",
+        }));
 
         setPlayers(playerList);
       } catch (error) {
@@ -133,8 +122,7 @@ console.log("First element:", Array.isArray(data) ? data[0] : data.players[0]);
 
     fetchPlayers();
   }, []);
-  
-  // Filter players based on search input
+
   const filteredPlayers = players.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -145,20 +133,16 @@ console.log("First element:", Array.isArray(data) ? data[0] : data.players[0]);
 
       <form
         className="d-flex mb-4"
-        role="search"
         onSubmit={(e) => e.preventDefault()}
       >
         <input
           className="form-control me-2"
           type="search"
           placeholder="Search"
-          aria-label="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="btn btn-outline-success" type="submit">
-          Search
-        </button>
+        <button className="btn btn-outline-success" type="submit">Search</button>
       </form>
 
       <div className="row">
@@ -167,14 +151,11 @@ console.log("First element:", Array.isArray(data) ? data[0] : data.players[0]);
             <div className="card shadow-sm h-100">
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">
-                  {p.name}{" "}
-                  <span className="badge rounded-pill bg-primary">
-                    {p.team}
-                  </span>
+                  {p.name} <span className="badge rounded-pill bg-primary">{p.team}</span>
                 </h5>
                 <p className="card-text text-muted">Click for more details</p>
                 <Link
-                  to={`/player/${p.id}`}
+                  to={`player/${p.id}`} // relative path
                   state={{
                     name: p.name,
                     team: p.team,
@@ -199,3 +180,4 @@ console.log("First element:", Array.isArray(data) ? data[0] : data.players[0]);
     </div>
   );
 }
+

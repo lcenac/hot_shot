@@ -1,15 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { sendToVercelAnalytics } from './vitals';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainPage from './MainPage';
+import NBAPage from './NBAPage';
+import WNBAPage from './WNBAPage';
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPage />}>
+          <Route index element={<div style={{ padding: "2rem" }}><h1>Welcome to Hot Shot 🔥</h1></div>} />
+          <Route path="nba/*" element={<NBAPage />} />
+          <Route path="wnba" element={<WNBAPage />} />
+        </Route>
+      </Routes>
+    </Router>
+  </React.StrictMode>
 );
-
-reportWebVitals(sendToVercelAnalytics);

@@ -4,8 +4,8 @@ export default function PlayerDetail() {
   const { id } = useParams();
   const location = useLocation();
 
-  const playerName = location.state?.name || "";
-  const league = location.state?.league || "";
+  const playerName = location.state?.name || `Player ID: ${id}`;
+  const team = location.state?.team || "N/A";
   const avg_points = location.state?.avg_points || "N/A";
   const avg_reb = location.state?.avg_reb || "N/A";
   const avg_ass = location.state?.avg_ass || "N/A";
@@ -13,45 +13,23 @@ export default function PlayerDetail() {
 
   return (
     <div className="container mt-4">
-      <h2>{playerName ? playerName : `Player ID: ${id}`}</h2>
-     
+      <h2>{playerName} <span className="text-muted">({team})</span></h2>
 
       <div className="row mt-3">
-        <div className="col-md-3 mb-3">
-          <div className="card shadow text-center p-3">
-            <h6>Points</h6>
-            <p className="fs-4">{avg_points}</p>
+        {[
+          { label: "Points", value: avg_points },
+          { label: "Rebounds", value: avg_reb },
+          { label: "Assists", value: avg_ass },
+          { label: "FG%", value: fg },
+        ].map((stat, i) => (
+          <div key={i} className="col-md-3 mb-3">
+            <div className="card shadow-sm text-center p-3">
+              <h6>{stat.label}</h6>
+              <p className="fs-4">{stat.value}</p>
+            </div>
           </div>
-        </div>
-
-        <div className="col-md-3 mb-3">
-          <div className="card shadow-sm text-center p-3">
-            <h6>Rebounds</h6>
-            <p className="fs-4">{avg_reb}</p>
-          </div>
-        </div>
-
-        <div className="col-md-3 mb-3">
-          <div className="card shadow-sm text-center p-3">
-            <h6>Assists</h6>
-            <p className="fs-4">{avg_ass}</p>
-          </div>
-        </div>
-
-        <div className="col-md-3 mb-3">
-          <div className="card shadow-sm text-center p-3">
-            <h6>FG%</h6>
-            <p className="fs-4">{fg}</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
-
-
-
-
-
-
-
   );
 }

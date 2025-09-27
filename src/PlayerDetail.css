@@ -1,4 +1,17 @@
+body{
+    font-family: "Rockwell Extra Bold", "Rockwell Bold", monospace; font-size: 20px !important; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; 
+    color:white !important;
+}
 .card {
 color:white;
 background-color:#1e232b;
+
+}
+
+.navbar {
+    background-color: black !important;
+
+}
+.navbar a{
+    color: white !important;
 }
