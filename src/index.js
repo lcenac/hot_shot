@@ -15,7 +15,7 @@ root.render(
         <Route path="/" element={<MainPage />}>
           <Route index element={<div style={{ padding: "2rem" }}><h1>Welcome to Hot Shot 🔥</h1></div>} />
           <Route path="nba/*" element={<NBAPage />} />
-          <Route path="wnba" element={<WNBAPage />} />
+          <Route path="wnba/*" element={<WNBAPage />} />
         </Route>
       </Routes>
     </Router>
