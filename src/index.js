@@ -8,7 +8,7 @@ import WNBAPage from './WNBAPage';
 // import WPlayerList from './WPlayerList';
 import WPlayerDetails from './WPlayerDetail';
 
-
+//fixing caching issue
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
