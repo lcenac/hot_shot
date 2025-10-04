@@ -58,7 +58,7 @@ setPlayers(mappedPlayers);
  
 
 
-  if (loading) return<div class="spinner-border text-primary" role="status">
+   if (loading) return  <div class="spinner-border text-primary"   role="status">
 
   <span class="visually-hidden">Loading...</span>
 </div>

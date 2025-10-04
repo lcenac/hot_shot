@@ -55,8 +55,7 @@ setPlayers(mappedPlayers);
 
  
 
-
-  if (loading) return<div class="spinner-border text-primary" role="status">
+ if (loading) return  <div class="spinner-border text-primary"   role="status">
 
   <span class="visually-hidden">Loading...</span>
 </div>
@@ -83,7 +82,7 @@ setPlayers(mappedPlayers);
             <div className="card shadow-sm h-100">
               <div className="card-body d-flex flex-column">
   <h5 className="card-title">
-    {p.name} <span className="badge rounded-pill bg-primary">{p.team}</span>
+    {p.name} <span className="badge rounded-pill bg-primary">{p.team || "FA"}</span>
   </h5>
   <p className="card-text text-muted">Click for more details</p>
   
