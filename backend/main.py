@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import WPlayerList, WPlayerStats
+from routes import WPlayerList, WPlayerStats, NBAPlayerList, NBAPlayerStats
 
 
 app = FastAPI()
@@ -16,7 +16,8 @@ app.add_middleware(
 
 app.include_router(WPlayerList.router, prefix="/api/players", tags=["players"])
 app.include_router(WPlayerStats.router, prefix="/api/player", tags=["player"]) 
-
+app.include_router(NBAPlayerList.router, prefix="/api/NBAplayers", tags=["players"]) 
+app.include_router(NBAPlayerStats.router, prefix="/api/NBAplayer", tags=["player"]) 
 @app.get("/")
 def root():
     return {"message": "Hot Shot API is running!"}

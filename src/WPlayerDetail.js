@@ -1,11 +1,13 @@
 // WPlayerDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
+import './PlayerDetail.css';
 
 
 function WPlayerDetail() {
   const { id } = useParams();
+  const { state } = useLocation(); 
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ function WPlayerDetail() {
       <button className="btn btn-secondary mb-3" onClick={() => navigate(-1)}>
         &larr; Back to List
       </button>
-      <h2 className="mb-3">WNBA Player Stats</h2>
+      <h2 className="mb-3">{state?.playerName || "Player"}</h2>
       {stats && (
         <>
           <h5>Season: {stats.season}</h5>
