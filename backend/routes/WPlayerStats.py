@@ -1,7 +1,7 @@
 # backend/routes/WPlayerStats.py
 from fastapi import APIRouter, HTTPException
 import requests
-from cache import cache  # import the cache system
+from cache import player_stats_cache  # import the cache system
 
 router = APIRouter()
 
@@ -23,8 +23,8 @@ def get_wnba_player_stats(player_id: int):
 
     # Check if player stats are cached
     cache_key = f"wnba_player_stats_{player_id}"
-    if cache_key in cache:
-        return cache[cache_key]
+    if cache_key in player_stats_cache:
+        return player_stats_cache[cache_key]
 
     try:
         params = {
@@ -66,7 +66,7 @@ def get_wnba_player_stats(player_id: int):
             result = {"success": True, "stats": filtered}
 
         # Store in cache before returning
-        cache[cache_key] = result
+        player_stats_cache[cache_key] = result
 
         return result
 

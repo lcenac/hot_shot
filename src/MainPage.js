@@ -1,4 +1,5 @@
-import { Link, Outlet } from "react-router-dom";
+// MainPage.js
+import { Outlet } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MainPage() {
@@ -6,7 +7,7 @@ function MainPage() {
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">hot_shot</Link>
+          <a className="navbar-brand" href="/">hot_shot</a>
           <button
             className="navbar-toggler"
             type="button"
@@ -20,15 +21,14 @@ function MainPage() {
           </button>
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div className="navbar-nav">
-              <Link className="nav-link" to="/wnba">WNBA</Link>
-              <Link className="nav-link" to="/nba">NBA</Link>
+              <a className="nav-link" href="/wnba">WNBA</a>
+              <a className="nav-link" href="/nba">NBA</a>
             </div>
           </div>
         </div>
       </nav>
 
-   
-
+      {/* This is where nested routes render */}
       <Outlet />
     </>
   );

@@ -1,7 +1,7 @@
 # routes/NPlayers.py
 from fastapi import APIRouter, HTTPException
 import requests
-from cache import cache  # import your shared cache instance
+from cache import player_list_cache  # import your shared cache instance
 
 router = APIRouter()
 
@@ -23,8 +23,8 @@ def get_nba_players(season: str = "2024"):
     cache_key = f"nba_players_{season}"
 
     # 1️⃣ Check if cached
-    if cache_key in cache:
-        return cache[cache_key]
+    if cache_key in player_list_cache:
+        return player_list_cache[cache_key]
 
     params = {
         "LeagueID": "00",  # NBA league ID
@@ -51,7 +51,7 @@ def get_nba_players(season: str = "2024"):
                 break
 
         # 2️⃣ Cache the result for future calls
-        cache[cache_key] = players
+        player_list_cache[cache_key] = players
 
         return players
 

@@ -1,7 +1,7 @@
 # backend/routes/NPlayerStats.py
 from fastapi import APIRouter, HTTPException
 import requests
-from cache import cache  # import your shared cache instance
+from cache import player_stats_cache  # import your shared cache instance
 
 router = APIRouter()
 
@@ -23,8 +23,8 @@ def get_nba_player_stats(player_id: int):
 
     # 1️⃣ Check cache first
     cache_key = f"nba_player_stats_{player_id}"
-    if cache_key in cache:
-        return cache[cache_key]
+    if cache_key in player_stats_cache:
+        return player_stats_cache[cache_key]
 
     try:
         params = {
@@ -65,7 +65,7 @@ def get_nba_player_stats(player_id: int):
             result = {"success": True, "stats": filtered}
 
         # 2️⃣ Store in cache
-        cache[cache_key] = result
+        player_stats_cache[cache_key] = result
 
         return result
 

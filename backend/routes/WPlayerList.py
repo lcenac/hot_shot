@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import requests
-from cache import cache  # optional caching
+from cache import player_list_cache # optional caching
 
 router = APIRouter()
 
@@ -19,8 +19,8 @@ def get_wnba_players(is_only_current_season: int = 1, season: str = "2025"):
     """
     # Check cache first
     cache_key = f"players_{season}_{is_only_current_season}"
-    if cache_key in cache:
-        return cache[cache_key]
+    if cache_key in player_list_cache:
+        return player_list_cache[cache_key]
 
     params = {
         "IsOnlyCurrentSeason": is_only_current_season,
@@ -44,7 +44,7 @@ def get_wnba_players(is_only_current_season: int = 1, season: str = "2025"):
         players_list = [dict(zip(headers, row)) for row in rows]
 
         # Cache the result
-        cache[cache_key] = players_list
+        player_list_cache[cache_key] = players_list
 
         return players_list
 
