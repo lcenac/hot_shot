@@ -27,6 +27,8 @@ function MainPage() {
         </div>
       </nav>
 
+   
+
       <Outlet />
     </>
   );

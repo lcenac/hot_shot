@@ -1,6 +1,7 @@
 # routes/NPlayers.py
 from fastapi import APIRouter, HTTPException
 import requests
+from cache import cache  # import your shared cache instance
 
 router = APIRouter()
 
@@ -12,19 +13,26 @@ HEADERS = {
     "Origin": "https://www.nba.com"
 }
 
+
 @router.get("/")
-def get_nba_players(season: str = "2024"):  # default season
+def get_nba_players(season: str = "2024"):
     """
     Fetch NBA players for a given season.
-    Returns list of players with ID, name, and team.
+    Uses TTL cache to avoid hammering the NBA API.
     """
-    try:
-        params = {
-            "LeagueID": "00",  # NBA league ID
-            "Season": season,
-            "IsOnlyCurrentSeason": 1
-        }
+    cache_key = f"nba_players_{season}"
 
+    # 1️⃣ Check if cached
+    if cache_key in cache:
+        return cache[cache_key]
+
+    params = {
+        "LeagueID": "00",  # NBA league ID
+        "Season": season,
+        "IsOnlyCurrentSeason": 1
+    }
+
+    try:
         response = requests.get(NBA_PLAYERS_URL, headers=HEADERS, params=params, timeout=15)
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch NBA players")
@@ -41,6 +49,9 @@ def get_nba_players(season: str = "2024"):  # default season
                     player = dict(zip(headers, row))
                     players.append(player)
                 break
+
+        # 2️⃣ Cache the result for future calls
+        cache[cache_key] = players
 
         return players
 

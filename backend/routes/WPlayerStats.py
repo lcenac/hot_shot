@@ -1,6 +1,7 @@
 # backend/routes/WPlayerStats.py
 from fastapi import APIRouter, HTTPException
 import requests
+from cache import cache  # import the cache system
 
 router = APIRouter()
 
@@ -12,12 +13,19 @@ HEADERS = {
     "Origin": "https://www.wnba.com"
 }
 
+
 @router.get("/{player_id}")
 def get_wnba_player_stats(player_id: int):
     """
     Fetch WNBA player stats for a given player_id.
     Returns the most recent season totals.
     """
+
+    # Check if player stats are cached
+    cache_key = f"wnba_player_stats_{player_id}"
+    if cache_key in cache:
+        return cache[cache_key]
+
     try:
         params = {
             "PlayerID": player_id,
@@ -43,21 +51,27 @@ def get_wnba_player_stats(player_id: int):
                 break
 
         if not season_stats:
-            return {"success": False, "error": "No stats found for this player"}
+            result = {"success": False, "error": "No stats found for this player"}
+        else:
+            # Filter down to key stats
+            filtered = {
+                "season": season_stats.get("SEASON_ID"),
+                "team": season_stats.get("TEAM_ABBREVIATION"),
+                "PTS": season_stats.get("PTS"),
+                "REB": season_stats.get("REB"),
+                "AST": season_stats.get("AST"),
+                "FG_PCT": season_stats.get("FG_PCT"),
+            }
 
-        # Filter down to key stats
-        filtered = {
-            "season": season_stats.get("SEASON_ID"),
-            "team": season_stats.get("TEAM_ABBREVIATION"),
-            "PTS": season_stats.get("PTS"),
-            "REB": season_stats.get("REB"),
-            "AST": season_stats.get("AST"),
-            "FG_PCT": season_stats.get("FG_PCT"),
-        }
+            result = {"success": True, "stats": filtered}
 
-        return {"success": True, "stats": filtered}
+        # Store in cache before returning
+        cache[cache_key] = result
+
+        return result
 
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Request error: {e}")
     except ValueError as e:
         raise HTTPException(status_code=500, detail=f"JSON parsing error: {e}")
+
