@@ -27,6 +27,7 @@ const mappedPlayers = data.map(p => ({
   
   name: p.DISPLAY_FIRST_LAST,
   team: p.TEAM_ABBREVIATION,
+  teamName: p.TEAM_NAME,
   avg_points: p.AVG_POINTS || "N/A",
   avg_reb: p.AVG_TOT_REB || "N/A",
   avg_ass: p.AST || "N/A",
@@ -85,12 +86,12 @@ setPlayers(mappedPlayers);
             <div className="card shadow-sm h-100">
               <div className="card-body d-flex flex-column">
   <h5 className="card-title">
-    {p.name} <span className="badge rounded-pill bg-primary">{p.team}</span>
+    {p.name} <span className="badge rounded-pill bg-primary">{p.team || "FA"}</span>
   </h5>
   <p className="card-text text-muted">Click for more details</p>
   
 
-  <Link to={`/nba/player/${p.id}`} state={{ playerName: p.name }} className="btn btn-primary mt-auto">
+  <Link to={`/nba/player/${p.id}`} state={{ playerName: p.name, team_name: p.teamName}} className="btn btn-primary mt-auto">
     See Stats
   </Link>
   

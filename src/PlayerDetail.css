@@ -27,6 +27,9 @@ background-color:#1e232b;
   overflow: hidden;       /* prevent accidental overflow */
 }
 
+.h6{
+  color:white;
+}
 /* Player Photo */
 .player-photo img {
   width: 400px !important;       /* stricter max width */
