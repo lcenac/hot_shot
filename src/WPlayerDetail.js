@@ -134,7 +134,7 @@ function WPlayerDetail() {
           {stats && (
             <>
               <h5 className="mb-1">Season: {stats.season}</h5>
-              <h6 className="text">Team: <span class="badge rounded-pill text-bg-primary"> {stats.team}</span></h6>
+              <h6 className="text">Team: <span class="badge rounded-pill text-bg-primary"> {state?.team_name || stats.team}</span></h6>
             </>
           )}
         </div>

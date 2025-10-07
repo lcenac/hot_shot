@@ -25,6 +25,7 @@ const mappedPlayers = data.map(p => ({
   
   name: p.DISPLAY_FIRST_LAST,
   team: p.TEAM_ABBREVIATION,
+   teamName: p.TEAM_NAME,
   avg_points: p.AVG_POINTS || "N/A",
   avg_reb: p.AVG_TOT_REB || "N/A",
   avg_ass: p.AST || "N/A",
@@ -87,7 +88,7 @@ setPlayers(mappedPlayers);
   <p className="card-text text-muted">Click for more details</p>
   
 
-  <Link to={`/wnba/player/${p.id}`} state={{ playerName: p.name }} className="btn btn-primary mt-auto">
+  <Link to={`/wnba/player/${p.id}`} state={{ playerName: p.name, team_name:p.teamName }} className="btn btn-primary mt-auto">
     See Stats
   </Link>
   
