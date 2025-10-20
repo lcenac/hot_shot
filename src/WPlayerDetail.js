@@ -88,7 +88,7 @@ function WPlayerDetail() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/player/${id}`);
+      const res = await fetch(`http://127.0.0.1:8000/api/player/${id}`);
         if (!res.ok) throw new Error(`Error: ${res.status}`);
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "No stats found");

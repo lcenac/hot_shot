@@ -18,7 +18,7 @@ app.include_router(WPlayerList.router, prefix="/api/players", tags=["players"])
 app.include_router(WPlayerStats.router, prefix="/api/player", tags=["player"]) 
 app.include_router(NBAPlayerList.router, prefix="/api/NBAplayers", tags=["players"]) 
 app.include_router(NBAPlayerStats.router, prefix="/api/NBAplayer", tags=["player"]) 
-# app.include_router(Streaks.router, prefix="/streaks", tags=["playerStreaks"]) 
+app.include_router(Streaks.router, prefix="/api/streaks", tags=["playerStreaks"]) 
 @app.get("/")
 def root():
     return {"message": "Hot Shot API is running!"}
