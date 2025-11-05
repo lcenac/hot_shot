@@ -295,6 +295,12 @@ import MainPage from "./MainPage";
 import NBAPage from "./NBAPage";
 import WNBAPage from "./WNBAPage";
 
+// ✅ Default threshold values (matching backend)
+const DEFAULT_HOT_FG = 50.0;
+const DEFAULT_COLD_FG = 40.0;
+const DEFAULT_HOT_3FG = 40.0;
+const DEFAULT_COLD_3FG = 30.0;
+
 function getPlayerImageUrl(playerId) {
   if (!playerId) return null;
   return `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`;
@@ -406,73 +412,112 @@ function StreakCard({ player, isHot }) {
 }
 
 function HomeContent() {
-  const [streaks, setStreaks] = useState({ hot: [], cold: [] });
+  const [streaks, setStreaks] = useState({ hot_fg: [], cold_fg: [], hot_3p: [], cold_3p: [] });
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState(10);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(50); // ✅ Better default
   const [mode, setMode] = useState("both");
-  const [statType, setStatType] = useState("fg"); // "fg" or "3p"
+  const [statType, setStatType] = useState("fg");
   const [error, setError] = useState(null);
-
-  const fetchStreaks = async (numGames, lim = 20) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/api/streaks?games=${numGames}&limit=${lim}`);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
-      const data = await res.json();
-      
-      console.log("API Response:", data); // Debug log
-
-      // ✅ Match the updated backend response structure
-      const hot_fg = data.hot_fg_streaks || [];
-      const cold_fg = data.cold_fg_streaks || [];
-      const hot_3p = data.hot_3p_streaks || [];
-      const cold_3p = data.cold_3p_streaks || [];
-
-      setStreaks({ 
-        hot_fg, 
-        cold_fg, 
-        hot_3p, 
-        cold_3p 
-      });
-    } catch (err) {
-      console.error("fetchStreaks error:", err);
-      setError(err.message || String(err));
-      setStreaks({ hot_fg: [], cold_fg: [], hot_3p: [], cold_3p: [] });
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  // ✅ Add threshold state
+  const [hotFgMin, setHotFgMin] = useState(DEFAULT_HOT_FG);
+  const [coldFgMax, setColdFgMax] = useState(DEFAULT_COLD_FG);
+  const [hot3fgMin, setHot3fgMin] = useState(DEFAULT_HOT_3FG);
+  const [cold3fgMax, setCold3fgMax] = useState(DEFAULT_COLD_3FG);
+  const [thresholds, setThresholds] = useState(null);
+  const [fromCache, setFromCache] = useState(false);
+  const [playersFetched, setPlayersFetched] = useState(0);
+  const [showAll, setShowAll] = useState(false); // ✅ New toggle for showing all players
 
   useEffect(() => {
-    fetchStreaks(games, limit);
-  }, [games, limit]);
+    const fetchStreaks = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // ✅ Include threshold parameters in API call (note the trailing slash!)
+        const url = new URL('http://127.0.0.1:8000/api/streaks/');
+        url.searchParams.set('games', games);
+        url.searchParams.set('limit', limit);
+        url.searchParams.set('hot_fg_min', hotFgMin);
+        url.searchParams.set('cold_fg_max', coldFgMax);
+        url.searchParams.set('hot_3fg_min', hot3fgMin);
+        url.searchParams.set('cold_3fg_max', cold3fgMax);
+        url.searchParams.set('show_all', showAll); // ✅ Add show_all parameter
+        
+        console.log("Fetching URL:", url.toString()); // Debug log
+        
+        const res = await fetch(url.toString());
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        const data = await res.json();
+        
+        console.log("API Response:", data);
+        console.log("Hot FG streaks:", data.hot_fg_streaks);
+        console.log("Cold FG streaks:", data.cold_fg_streaks);
+
+        // ✅ Extract data from backend response
+        const hot_fg = data.hot_fg_streaks || [];
+        const cold_fg = data.cold_fg_streaks || [];
+        const hot_3p = data.hot_3p_streaks || [];
+        const cold_3p = data.cold_3p_streaks || [];
+
+        console.log("Setting streaks state:", { hot_fg, cold_fg, hot_3p, cold_3p });
+
+        setStreaks({ hot_fg, cold_fg, hot_3p, cold_3p });
+        setFromCache(data.from_cache || false);
+        setPlayersFetched(data.players_fetched || 0);
+        
+        // ✅ Store the thresholds used
+        if (data.thresholds) {
+          setThresholds(data.thresholds);
+        }
+      } catch (err) {
+        console.error("fetchStreaks error:", err);
+        setError(err.message || String(err));
+        setStreaks({ hot_fg: [], cold_fg: [], hot_3p: [], cold_3p: [] });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStreaks();
+  }, [games, limit, hotFgMin, coldFgMax, hot3fgMin, cold3fgMax, showAll]); // ✅ Add showAll to dependencies
 
   const displayed = (() => {
     const hotKey = statType === "fg" ? "hot_fg" : "hot_3p";
     const coldKey = statType === "fg" ? "cold_fg" : "cold_3p";
     
+    console.log("Computing displayed players...");
+    console.log("Stat Type:", statType, "Mode:", mode);
+    console.log("Hot Key:", hotKey, "Cold Key:", coldKey);
+    console.log("Streaks object:", streaks);
+    console.log("Hot array:", streaks[hotKey]);
+    console.log("Cold array:", streaks[coldKey]);
+    
     if (mode === "hot") {
-      return (streaks[hotKey] || []).map(p => ({ ...p, _isHot: true, _statType: statType }));
+      const result = (streaks[hotKey] || []).map(p => ({ ...p, _isHot: true, _statType: statType }));
+      console.log("Hot mode result:", result);
+      return result;
     }
     if (mode === "cold") {
-      return (streaks[coldKey] || []).map(p => ({ ...p, _isHot: false, _statType: statType }));
+      const result = (streaks[coldKey] || []).map(p => ({ ...p, _isHot: false, _statType: statType }));
+      console.log("Cold mode result:", result);
+      return result;
     }
-    // Both mode: concat hot then cold, marking each
-    return [
+    const result = [
       ...(streaks[hotKey] || []).map(p => ({ ...p, _isHot: true, _statType: statType })),
       ...(streaks[coldKey] || []).map(p => ({ ...p, _isHot: false, _statType: statType }))
     ];
+    console.log("Both mode result:", result);
+    return result;
   })();
 
   const pageStyle = {
     padding: "2rem",
     maxWidth: "1400px",
     margin: "0 auto",
-   
   };
 
   const controlsStyle = {
@@ -536,11 +581,11 @@ function HomeContent() {
             onChange={(e) => setLimit(Number(e.target.value))}
             style={selectStyle}
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-            <option value={0}>All Players</option>
+            <option value={10}>10 (Fast)</option>
+            <option value={20}>20 (Fast)</option>
+            <option value={50}>50 (Recommended)</option>
+            <option value={100}>100 (All Players - Slower)</option>
+            <option value={0}>Unlimited (Slowest)</option>
           </select>
         </label>
 
@@ -556,7 +601,17 @@ function HomeContent() {
           </select>
         </label>
 
-        <div style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={showAll}
+              onChange={(e) => setShowAll(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            <span>Show All Qualified</span>
+          </label>
+          
           <button 
             onClick={() => setMode("both")} 
             style={mode === "both" ? activeButtonStyle : buttonStyle}
@@ -578,16 +633,146 @@ function HomeContent() {
         </div>
       </div>
 
+      {/* ✅ Add threshold controls */}
+      <div style={{ 
+        ...controlsStyle, 
+        marginTop: "1rem",
+        padding: "1rem",
+        background: "#2a2f38",
+        borderRadius: 8,
+        border: "1px solid #3a4150"
+      }}>
+        <div style={{ fontSize: "0.9rem", fontWeight: 600, marginRight: "1rem" }}>
+          Thresholds:
+        </div>
+        
+        {statType === "fg" ? (
+          <>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.85rem" }}>Hot FG% ≥</span>
+              <input
+                type="number"
+                value={hotFgMin}
+                onChange={(e) => setHotFgMin(Number(e.target.value))}
+                style={{ ...selectStyle, width: "70px" }}
+                min="0"
+                max="100"
+                step="0.1"
+              />
+              <span style={{ fontSize: "0.85rem" }}>%</span>
+            </label>
+            
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.85rem" }}>Cold FG% ≤</span>
+              <input
+                type="number"
+                value={coldFgMax}
+                onChange={(e) => setColdFgMax(Number(e.target.value))}
+                style={{ ...selectStyle, width: "70px" }}
+                min="0"
+                max="100"
+                step="0.1"
+              />
+              <span style={{ fontSize: "0.85rem" }}>%</span>
+            </label>
+          </>
+        ) : (
+          <>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.85rem" }}>Hot 3PT% ≥</span>
+              <input
+                type="number"
+                value={hot3fgMin}
+                onChange={(e) => setHot3fgMin(Number(e.target.value))}
+                style={{ ...selectStyle, width: "70px" }}
+                min="0"
+                max="100"
+                step="0.1"
+              />
+              <span style={{ fontSize: "0.85rem" }}>%</span>
+            </label>
+            
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.85rem" }}>Cold 3PT% ≤</span>
+              <input
+                type="number"
+                value={cold3fgMax}
+                onChange={(e) => setCold3fgMax(Number(e.target.value))}
+                style={{ ...selectStyle, width: "70px" }}
+                min="0"
+                max="100"
+                step="0.1"
+              />
+              <span style={{ fontSize: "0.85rem" }}>%</span>
+            </label>
+          </>
+        )}
+        
+        <button
+          onClick={() => {
+            setHotFgMin(DEFAULT_HOT_FG);
+            setColdFgMax(DEFAULT_COLD_FG);
+            setHot3fgMin(DEFAULT_HOT_3FG);
+            setCold3fgMax(DEFAULT_COLD_3FG);
+          }}
+          style={{...buttonStyle, fontSize: "0.85rem", padding: "0.4rem 0.8rem"}}
+        >
+          Reset Defaults
+        </button>
+      </div>
+
       <h2 style={{ marginTop: 8, fontSize: "1.3rem", color: "#ccc" }}>
         Showing {mode === "both" ? "Hot & Cold" : mode === "hot" ? "Hot 🔥" : "Cold ❄️"} streaks
         {" — "}
         {statType === "fg" ? "Field Goal" : "3-Point"} % over {games} games
+        {showAll && (
+          <span style={{ 
+            fontSize: "0.85rem", 
+            marginLeft: "0.5rem", 
+            color: "#4a90e2",
+            background: "rgba(74, 144, 226, 0.1)",
+            padding: "0.2rem 0.5rem",
+            borderRadius: 4
+          }}>
+            All Qualified
+          </span>
+        )}
+        {thresholds && (
+          <span style={{ fontSize: "0.9rem", marginLeft: "0.5rem", color: "#999" }}>
+            {statType === "fg" 
+              ? `(Hot: ≥${thresholds.hot_fg_min}%, Cold: ≤${thresholds.cold_fg_max}%)`
+              : `(Hot: ≥${thresholds.hot_3fg_min}%, Cold: ≤${thresholds.cold_3fg_max}%)`
+            }
+          </span>
+        )}
+        {fromCache && (
+          <span style={{ 
+            fontSize: "0.85rem", 
+            marginLeft: "0.5rem", 
+            color: "#4a90e2",
+            background: "rgba(74, 144, 226, 0.1)",
+            padding: "0.2rem 0.5rem",
+            borderRadius: 4
+          }}>
+            ⚡ Cached
+          </span>
+        )}
+        {playersFetched > 0 && (
+          <span style={{ fontSize: "0.85rem", marginLeft: "0.5rem", color: "#999" }}>
+            ({playersFetched} players checked)
+          </span>
+        )}
       </h2>
 
       {loading ? (
         <div style={{ textAlign: "center", padding: "3rem", color: "#888" }}>
           <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>🏀</div>
           <p>Loading streaks…</p>
+          {limit >= 100 && (
+            <p style={{ fontSize: "0.85rem", color: "#aaa", marginTop: "0.5rem" }}>
+              Analyzing {limit === 0 ? '100+' : limit} players, this may take 10-30 seconds...
+            </p>
+          )}
         </div>
       ) : error ? (
         <div style={{ 
@@ -605,7 +790,20 @@ function HomeContent() {
         </div>
       ) : displayed.length === 0 ? (
         <div style={{ textAlign: "center", padding: "3rem", color: "#888" }}>
-          <p>No streak data found</p>
+          <p>No streak data found matching the current thresholds</p>
+          <p style={{ fontSize: "0.9rem", marginTop: "0.5rem", color: "#aaa" }}>
+            Players analyzed: {streaks.hot_fg?.length + streaks.cold_fg?.length + streaks.hot_3p?.length + streaks.cold_3p?.length || 0}
+          </p>
+          <p style={{ fontSize: "0.9rem", marginTop: "0.5rem" }}>
+            Try:
+          </p>
+          <ul style={{ listStyle: "none", padding: 0, fontSize: "0.9rem" }}>
+            <li>• Increasing the "Players limit" to analyze more players</li>
+            <li>• Adjusting the threshold values</li>
+            <li>• Switching between FG% and 3PT% stat types</li>
+            <li>• Changing the Hot/Cold/Both filter</li>
+            <li>• Checking "Show All Qualified" to see all matching players</li>
+          </ul>
         </div>
       ) : (
         <div
@@ -617,9 +815,7 @@ function HomeContent() {
           }}
         >
           {displayed.map((p, idx) => {
-            // ✅ Use the marked hot/cold status directly from the player object
             const isFromHot = p._isHot ?? false;
-
             return <StreakCard key={idx} player={p} isHot={isFromHot} />;
           })}
         </div>
