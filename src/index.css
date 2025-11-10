@@ -5,11 +5,298 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  background-color:black !important;
+  background-color: black !important;
+  color: white;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Page Layout */
+.page-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-title {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.page-subtitle {
+  margin-top: 1rem;
+  font-size: 1.3rem;
+  color: #ccc;
+}
+
+/* Player Image */
+.player-image-container {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+}
+
+.player-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.player-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2f38;
+  color: #888;
+  font-weight: 700;
+}
+
+/* Stat Display */
+.stat-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.stat-details {
+  font-size: 11px;
+  color: #777;
+}
+
+/* Streak Cards */
+.streak-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  color: white;
+  border: 2px solid;
+  transition: transform 0.2s ease;
+}
+
+.streak-card:hover {
+  transform: scale(1.02);
+}
+
+.streak-card.hot {
+  background: #3d2520;
+  border-color: #ff4500;
+}
+
+.streak-card.cold {
+  background: #1f2d3a;
+  border-color: #1976d2;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.player-name {
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 1.05rem;
+}
+
+.player-team {
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.stats-container {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  margin-right: 8px;
+}
+
+.control-select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2f38;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.controls-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.control-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background: #3a4150;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.control-button:hover {
+  background: #4a5160;
+}
+
+.control-button.active {
+  background: #4a90e2;
+}
+
+/* Threshold Controls */
+.threshold-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #2a2f38;
+  border-radius: 8px;
+  border: 1px solid #3a4150;
+  flex-wrap: wrap;
+}
+
+.threshold-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+.threshold-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.threshold-text {
+  font-size: 0.85rem;
+}
+
+.threshold-input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2f38;
+  color: white;
+  font-size: 0.95rem;
+  width: 70px;
+}
+
+.threshold-reset-button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  background: #3a4150;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.threshold-reset-button:hover {
+  background: #4a5160;
+}
+
+/* Badges */
+.badge {
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  color: #4a90e2;
+}
+
+.badge-subtle {
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  color: #999;
+}
+
+/* Loading State */
+.loading-container {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+.loading-subtext {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-top: 0.5rem;
+}
+
+/* Error State */
+.error-container {
+  color: crimson;
+  background: rgba(220, 20, 60, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 20, 60, 0.3);
+}
+
+.error-hint {
+  color: #999;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+.empty-state-hint {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
 }

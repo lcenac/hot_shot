@@ -15,7 +15,7 @@ HEADERS = {
 
 
 @router.get("/")
-def get_nba_players(season: str = "2024"):
+def get_nba_players(season: str = "2025-26"):
     """
     Fetch NBA players for a given season.
     Uses TTL cache to avoid hammering the NBA API.
