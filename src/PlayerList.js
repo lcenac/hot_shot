@@ -59,15 +59,15 @@ setPlayers(mappedPlayers);
  
 
 
-   if (loading) return  <div class="spinner-border text-primary"   role="status">
-
+   if (loading) return  <div class="text-primary"   role="status">
+   <img src="/basktballcrop.gif" alt="Loading" style={{width:'200px',height:'100px', display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px' }} /><br/>
   <span class="visually-hidden">Loading...</span>
 </div>
   if (error) return <p className="text-center mt-4 text-danger">Error: {error}</p>;
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">Players</h1>
+      <h1 className="mb-4">NBA Players</h1>
     
       <form className="d-flex mb-4" onSubmit={(e) => e.preventDefault()}>
         <input

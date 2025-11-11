@@ -57,6 +57,7 @@ def get_wnba_player_stats(player_id: int):
             filtered = {
                 "season": season_stats.get("SEASON_ID"),
                 "team": season_stats.get("TEAM_ABBREVIATION"),
+                "team_id": season_stats.get("TEAM_ID"),  # Added team_id
                 "PTS": season_stats.get("PTS"),
                 "REB": season_stats.get("REB"),
                 "AST": season_stats.get("AST"),
@@ -75,3 +76,24 @@ def get_wnba_player_stats(player_id: int):
     except ValueError as e:
         raise HTTPException(status_code=500, detail=f"JSON parsing error: {e}")
 
+
+@router.get("/team-logo/{team_id}")
+def get_team_logo(team_id: str, season: str):
+    """
+    Return WNBA team logo URL using WNBA's official CDN.
+    """
+    
+    # Check cache first
+    cache_key = f"wnba_team_logo_{team_id}_{season}"
+    if cache_key in player_stats_cache:
+        return player_stats_cache[cache_key]
+    
+    # WNBA's official logo URL pattern
+    logo_url = f"https://cdn.wnba.com/logos/wnba/{team_id}/primary/L/logo.svg"
+    
+    result = {"success": True, "logo_url": logo_url}
+    
+    # Store in cache
+    player_stats_cache[cache_key] = result
+    
+    return result

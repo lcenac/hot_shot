@@ -57,6 +57,7 @@ def get_nba_player_stats(player_id: int):
             filtered = {
                 "season": season_stats.get("SEASON_ID"),
                 "team": season_stats.get("TEAM_ABBREVIATION"),
+                "team_id": season_stats.get("TEAM_ID"),  # Added team_id
                 "PTS": season_stats.get("PTS"),
                 "REB": season_stats.get("REB"),
                 "AST": season_stats.get("AST"),
@@ -73,3 +74,26 @@ def get_nba_player_stats(player_id: int):
         raise HTTPException(status_code=500, detail=f"Request error: {e}")
     except ValueError as e:
         raise HTTPException(status_code=500, detail=f"JSON parsing error: {e}")
+
+
+@router.get("/team-logo/{team_id}")
+def get_team_logo(team_id: str, season: str):
+    """
+    Return NBA team logo URL using NBA's official CDN.
+    No py_ball required - uses direct logo URLs.
+    """
+    
+    # 1️⃣ Check cache first
+    cache_key = f"team_logo_{team_id}_{season}"
+    if cache_key in player_stats_cache:
+        return player_stats_cache[cache_key]
+    
+    # NBA's official logo URL pattern
+    logo_url = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
+    
+    result = {"success": True, "logo_url": logo_url}
+    
+    # 2️⃣ Store in cache
+    player_stats_cache[cache_key] = result
+    
+    return result

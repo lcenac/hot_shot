@@ -361,8 +361,8 @@ function HomeContent() {
 
       {loading ? (
         <div className="loading-container">
-          <img src="/basktball2.gif" alt="Loading" style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px' }} />
-          <p>Loading streaks...</p>
+          <img src="/basktballcrop.gif" alt="Loading" style={{width:'200px',height:'100px', display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px' }} /><br/>
+         <p>Loading streaks...</p>
           {limit >= 100 && (
             <p className="loading-subtext">
               Analyzing {limit === 0 ? '100+' : limit} players, this may take 10-30 seconds...

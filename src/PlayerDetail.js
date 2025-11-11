@@ -1,81 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { useLocation } from "react-router-dom";
-// import './PlayerDetail.css';
-
-
-// function PlayerDetail() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const { state } = useLocation(); 
-//   const [stats, setStats] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     const fetchStats = async () => {
-//       try {
-//         const res = await fetch(`http://localhost:8000/api/NBAplayer/${id}`);
-//         if (!res.ok) throw new Error(`Error: ${res.status}`);
-//         const data = await res.json();
-//         if (!data.success) throw new Error(data.error || "No stats found");
-//         setStats(data.stats);
-//       } catch (err) {
-//         setError(err.message);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchStats();
-//   }, [id]);
-
-//   if (loading) return  <div class="spinner-border text-primary"   role="status">
-
-//   <span class="visually-hidden">Loading...</span>
-// </div>
-//   if (error) return <p style={{ color: "red" }}>{error}</p>;
-
-//   // Format FG% nicely
-//   const fgPercent = stats ? (stats.FG_PCT * 100).toFixed(1) : 0;
-
-  
-
-//   return (
-//     <div className="container mt-4">
-//       <button className="btn btn-secondary mb-3" onClick={() => navigate(-1)}>
-//         &larr; Back to List
-//       </button>
-//       <h2 className="mb-3"> {state?.playerName || "Player"}</h2>
-//       {stats && (
-//         <>
-//           <h5>Season: {stats.season}</h5>
-//           <h6>Team: {stats.team}</h6>
-
-//           <div className="row mt-3">
-//             {[
-//               { label: "Points", value: stats.PTS },
-//               { label: "Rebounds", value: stats.REB },
-//               { label: "Assists", value: stats.AST },
-//               { label: "FG%", value: fgPercent },
-//             ].map((stat, i) => (
-//               <div key={i} className="col-md-3 mb-3">
-//                 <div className="card shadow-sm text-center p-3">
-//                   <h6>{stat.label}</h6>
-//                   <p className="fs-4">{stat.value}</p>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default PlayerDetail;
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -88,6 +10,7 @@ function PlayerDetail() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [teamLogo, setTeamLogo] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -97,6 +20,11 @@ function PlayerDetail() {
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "No stats found");
         setStats(data.stats);
+        
+        // Fetch team logo if we have team_id
+        if (data.stats.team_id) {
+          fetchTeamLogo(data.stats.team_id, data.stats.season);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -104,11 +32,26 @@ function PlayerDetail() {
       }
     };
 
+    const fetchTeamLogo = async (teamId, season) => {
+      try {
+        const logoRes = await fetch(`http://127.0.0.1:8000/api/NBAplayer/team-logo/${teamId}?season=${season}`);
+        if (logoRes.ok) {
+          const logoData = await logoRes.json();
+          if (logoData.success && logoData.logo_url) {
+            setTeamLogo(logoData.logo_url);
+          }
+        }
+      } catch (err) {
+        console.log("Could not fetch team logo:", err);
+      }
+    };
+
     fetchStats();
   }, [id]);
 
   if (loading) return (
-    <div className="spinner-border text-primary" role="status">
+    <div className=" text-primary" role="status">
+         <img src="/basktballcrop.gif" alt="Loading" style={{width:'200px',height:'100px', display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px' }} /><br/>
       <span className="visually-hidden">Loading...</span>
     </div>
   );
@@ -138,7 +81,17 @@ function PlayerDetail() {
           {stats && (
             <>
               <h5 className="mb-1">Season: {stats.season}</h5>
-              <h6 className="text">Team: <span class="badge rounded-pill text-bg-primary"> {state?.team_name || stats.team}</span></h6>
+              <h6 className="text">
+                Team: 
+                {teamLogo && (
+                  <img 
+                    src={teamLogo} 
+                    alt="Team Logo" 
+                    style={{width: '30px', height: '30px', marginLeft: '8px', marginRight: '8px', verticalAlign: 'middle'}}
+                  />
+                )}
+                <span className="badge rounded-pill text-bg-primary"> {state?.team_name || stats.team}</span>
+              </h6>
             </>
           )}
         </div>
