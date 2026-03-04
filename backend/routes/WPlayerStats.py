@@ -16,10 +16,7 @@ HEADERS = {
 
 @router.get("/{player_id}")
 def get_wnba_player_stats(player_id: int):
-    """
-    Fetch WNBA player stats for a given player_id.
-    Returns the most recent season totals.
-    """
+    
 
     # Check if player stats are cached
     cache_key = f"wnba_player_stats_{player_id}"
@@ -30,7 +27,7 @@ def get_wnba_player_stats(player_id: int):
         params = {
             "PlayerID": player_id,
             "PerMode": "PerGame",
-            "LeagueID": "10"  # WNBA league ID
+            "LeagueID": "10"
         }
 
         response = requests.get(WNBA_PLAYER_STATS_URL, headers=HEADERS, params=params, timeout=15)
@@ -40,24 +37,24 @@ def get_wnba_player_stats(player_id: int):
         data = response.json()
         result_sets = data.get("resultSets", [])
 
-        # We care about "SeasonTotalsRegularSeason"
+       
         season_stats = None
         for rs in result_sets:
             if rs.get("name") == "SeasonTotalsRegularSeason":
                 headers = rs.get("headers", [])
                 rows = rs.get("rowSet", [])
                 if rows:
-                    season_stats = dict(zip(headers, rows[-1]))  # last season
+                    season_stats = dict(zip(headers, rows[-1])) 
                 break
 
         if not season_stats:
             result = {"success": False, "error": "No stats found for this player"}
         else:
-            # Filter down to key stats
+          
             filtered = {
                 "season": season_stats.get("SEASON_ID"),
                 "team": season_stats.get("TEAM_ABBREVIATION"),
-                "team_id": season_stats.get("TEAM_ID"),  # Added team_id
+                "team_id": season_stats.get("TEAM_ID"), 
                 "PTS": season_stats.get("PTS"),
                 "REB": season_stats.get("REB"),
                 "AST": season_stats.get("AST"),
@@ -66,7 +63,7 @@ def get_wnba_player_stats(player_id: int):
 
             result = {"success": True, "stats": filtered}
 
-        # Store in cache before returning
+      
         player_stats_cache[cache_key] = result
 
         return result
@@ -79,21 +76,17 @@ def get_wnba_player_stats(player_id: int):
 
 @router.get("/team-logo/{team_id}")
 def get_team_logo(team_id: str, season: str):
-    """
-    Return WNBA team logo URL using WNBA's official CDN.
-    """
-    
-    # Check cache first
+  
     cache_key = f"wnba_team_logo_{team_id}_{season}"
     if cache_key in player_stats_cache:
         return player_stats_cache[cache_key]
     
-    # WNBA's official logo URL pattern
+  
     logo_url = f"https://cdn.wnba.com/logos/wnba/{team_id}/primary/L/logo.svg"
     
     result = {"success": True, "logo_url": logo_url}
     
-    # Store in cache
+   
     player_stats_cache[cache_key] = result
     
     return result
