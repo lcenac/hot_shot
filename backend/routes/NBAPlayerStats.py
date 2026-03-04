@@ -21,7 +21,7 @@ def get_nba_player_stats(player_id: int):
     Returns the most recent season totals.
     """
 
-    # 1️⃣ Check cache first
+  
     cache_key = f"nba_player_stats_{player_id}"
     if cache_key in player_stats_cache:
         return player_stats_cache[cache_key]
@@ -30,7 +30,7 @@ def get_nba_player_stats(player_id: int):
         params = {
             "PlayerID": player_id,
             "PerMode": "PerGame",
-            "LeagueID": "00"  # NBA league ID
+            "LeagueID": "00" 
         }
 
         response = requests.get(NBA_PLAYER_STATS_URL, headers=HEADERS, params=params, timeout=15)
@@ -40,24 +40,24 @@ def get_nba_player_stats(player_id: int):
         data = response.json()
         result_sets = data.get("resultSets", [])
 
-        # We care about "SeasonTotalsRegularSeason"
+       
         season_stats = None
         for rs in result_sets:
             if rs.get("name") == "SeasonTotalsRegularSeason":
                 headers = rs.get("headers", [])
                 rows = rs.get("rowSet", [])
                 if rows:
-                    season_stats = dict(zip(headers, rows[-1]))  # last season
+                    season_stats = dict(zip(headers, rows[-1]))
                 break
 
         if not season_stats:
             result = {"success": False, "error": "No stats found for this player"}
         else:
-            # Filter down to key stats
+            
             filtered = {
                 "season": season_stats.get("SEASON_ID"),
                 "team": season_stats.get("TEAM_ABBREVIATION"),
-                "team_id": season_stats.get("TEAM_ID"),  # Added team_id
+                "team_id": season_stats.get("TEAM_ID"), 
                 "PTS": season_stats.get("PTS"),
                 "REB": season_stats.get("REB"),
                 "AST": season_stats.get("AST"),
@@ -65,7 +65,7 @@ def get_nba_player_stats(player_id: int):
             }
             result = {"success": True, "stats": filtered}
 
-        # 2️⃣ Store in cache
+        
         player_stats_cache[cache_key] = result
 
         return result
@@ -78,22 +78,19 @@ def get_nba_player_stats(player_id: int):
 
 @router.get("/team-logo/{team_id}")
 def get_team_logo(team_id: str, season: str):
-    """
-    Return NBA team logo URL using NBA's official CDN.
-    No py_ball required - uses direct logo URLs.
-    """
+   
     
-    # 1️⃣ Check cache first
+ 
     cache_key = f"team_logo_{team_id}_{season}"
     if cache_key in player_stats_cache:
         return player_stats_cache[cache_key]
     
-    # NBA's official logo URL pattern
+ 
     logo_url = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
     
     result = {"success": True, "logo_url": logo_url}
     
-    # 2️⃣ Store in cache
+ 
     player_stats_cache[cache_key] = result
     
     return result
