@@ -22,12 +22,12 @@ def get_nba_players(season: str = "2025-26"):
     """
     cache_key = f"nba_players_{season}"
 
-    # 1️⃣ Check if cached
+   
     if cache_key in player_list_cache:
         return player_list_cache[cache_key]
 
     params = {
-        "LeagueID": "00",  # NBA league ID
+        "LeagueID": "00",  
         "Season": season,
         "IsOnlyCurrentSeason": 1
     }
@@ -50,7 +50,7 @@ def get_nba_players(season: str = "2025-26"):
                     players.append(player)
                 break
 
-        # 2️⃣ Cache the result for future calls
+     
         player_list_cache[cache_key] = players
 
         return players
